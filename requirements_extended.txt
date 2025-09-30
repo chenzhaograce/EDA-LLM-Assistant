@@ -1,0 +1,29 @@
+# Core requirements for EDA LLM Assistant
+pandas>=1.5.0
+numpy>=1.20.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+sqlite3  # Built-in with Python
+
+# Optional database connectors
+# Uncomment and install as needed:
+
+# For MySQL connections
+# pymysql>=1.0.2
+# sqlalchemy>=1.4.0
+
+# For PostgreSQL connections  
+# psycopg2-binary>=2.9.0
+# sqlalchemy>=1.4.0
+
+# For Google BigQuery
+# pandas-gbq>=0.17.0
+# google-cloud-bigquery>=3.0.0
+
+# For enhanced EDA reports (optional)
+# ydata-profiling>=4.0.0
+# sweetviz>=2.1.4
+
+# For Jupyter notebook support
+# jupyter>=1.0.0
+# ipywidgets>=7.6.0
