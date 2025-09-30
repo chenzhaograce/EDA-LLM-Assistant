@@ -1,0 +1,21 @@
+# Core Python libraries
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Automated EDA
+ydata-profiling>=4.6.0
+sweetviz>=2.2.1
+
+# Data visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# LLM API
+openai>=1.0.0
+
+# Web app / interactive UI
+streamlit>=1.26.0
+
+# Jupyter support
+jupyterlab>=4.0.0
+ipykernel>=6.0.0
