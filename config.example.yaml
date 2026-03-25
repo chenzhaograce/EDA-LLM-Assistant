@@ -1,0 +1,60 @@
+data:
+  # type: file | sqlite
+  type: file
+  path: sales_and_customers.csv
+  pandas_kwargs: {}
+
+columns:
+  # include/exclude are optional
+  include: null
+  exclude: null
+  target: null
+  datetime_columns: null
+  # Remove ID-like columns from stats/plots/correlations (CustomerID, id, *_id, *Id, *ID). Target is never auto-dropped.
+  auto_exclude_id_columns: true
+  # Optional extra columns to drop from analysis only (not from the data dictionary):
+  exclude_from_analysis: null
+
+# Optional: column_name → human-readable definition (overrides inferred meanings in the data dictionary)
+dictionary: {}
+# Example:
+# dictionary:
+#   Customer_Satisfaction: "Survey response bucket (High / Medium / Low)"
+
+sections:
+  basic_overview: true
+  missing_values: true
+  duplicates: true
+  numeric_summary: true
+  categorical_summary: true
+  correlations: true
+  outliers_iqr: true
+  time_series: false
+  ydata_profiling_html: false
+  sweetviz_html: false
+  # Heuristic roles / PII-style pattern flags (full table + CSV in output)
+  column_intelligence: true
+  # When columns.target is set: group stats, chi-square / Kruskal–Wallis, plots
+  supervised_eda: true
+
+report:
+  title: "EDA Report (sales_and_customers)"
+  output_dir: "outputs"
+  save_markdown: true
+  save_html: true
+  max_categories: 20
+  corr_threshold: 0.7
+  high_missing_pct_threshold: 50.0
+  # For very large datasets, sample for plots (analysis still uses full df)
+  sample_rows: 5000
+  # Skip supervised tests when either categorical has more than this many levels
+  supervised_max_category_levels: 25
+
+llm:
+  enabled: false
+  provider: openai
+  model: gpt-4o-mini
+  api_key_env: OPENAI_API_KEY
+  system_prompt: "You are a senior data analyst. Given EDA results, write concise, actionable insights."
+  user_prompt: "Summarize key findings, data quality issues, and recommendations."
+

@@ -1,95 +1,87 @@
-# 📊 EDA + LLM Assistant  
+# EDA LLM Assistant
 
-### 🔎 Project Overview  
-A one-stop **data exploration and intelligent interpretation tool**:  
-- Upload any CSV dataset  
-- Automatically generate **EDA reports** (statistics, distributions, correlations, missing values)  
-- Use an **LLM (OpenAI API)** to translate results into **business-friendly summaries and recommendations**  
-
-Designed for **data scientists, business analysts, and students** to quickly explore datasets and produce insights.  
+Configurable one-shot exploratory data analysis for **tabular data** (CSV, Excel, JSON, Parquet, SQLite). Runs analyses and charts from your settings and exports **Markdown** and **HTML** reports. Optional **LLM** narrative section (OpenAI).
 
 ---
 
-## 🚀 Features  
-- **Automated EDA**: Generate profiling reports using `ydata-profiling` / `sweetviz`  
-- **LLM-Powered Insights**: Convert statistical outputs into natural language summaries  
-- **Flexible Input**: Upload any structured CSV dataset  
-- **Report Export**: Save results as HTML/PDF reports (optional)  
-- **Extensible**: Future integration with causal inference (GeoLift) and MMM (Robyn)  
+## Quick start
 
----
+### 1) Install dependencies
 
-## 📂 Project Structure  
-```
-project/
-│── app.py               # Main script (Streamlit or Python)
-│── requirements.txt     # Dependencies
-│── README.md            # Documentation
-│── sample_data.csv      # Example dataset
-```
-
----
-
-## ⚡ Quick Start  
-
-### 1. Clone the repository  
-```bash
-git clone https://github.com/yourname/eda-llm-assistant.git
-cd eda-llm-assistant
-```
-
-### 2. Install dependencies  
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run the demo  
+### 2) Copy and edit configuration
+
 ```bash
-python app.py
+cp config.example.yaml config.yaml
 ```
 
-If using Streamlit:  
+Set `data.path` in `config.yaml` to your dataset (e.g. CSV or SQLite path).
+
+### 3) Generate a report
+
 ```bash
-streamlit run app.py
+python eda.py --config config.yaml
 ```
+
+### Web UI (non-technical users)
+
+From the repository root:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Your browser opens **EDA Report Studio**: upload a file, adjust options, then download HTML, Markdown, or a full ZIP of outputs.
+
+### Default output folder (`outputs/`)
+
+- `outputs/report.md` / `outputs/report.html` — Structured report (data dictionary, structure, validation, transformations, visualizations, notes, provenance)
+- `outputs/data_dictionary.csv` — Reusable column table (inferred meanings if you provide no official dictionary)
+- `outputs/sample_rows.csv` — Sample rows
+- `outputs/assets/*.png` — Charts
 
 ---
 
-## 📝 Example  
+## Configuration (common options)
 
-Input data (`geolift_output.csv`):  
-```csv
-geo,treatment,control,lift,ci_low,ci_high,p_value
-NY,1200,1000,0.20,0.10,0.30,0.01
-CA,900,850,0.06,-0.05,0.15,0.20
-TX,1500,1300,0.15,0.05,0.25,0.03
-```
-
-Auto-generated LLM summary:  
-```
-- New York uplift +20% (95% CI: 10%–30%), statistically significant
-- Texas uplift +15% (95% CI: 5%–25%), statistically significant
-- California uplift not significant, CI includes 0
-
-Recommendations:
-1. Increase investments in New York and Texas
-2. Reassess California campaigns
-3. Run additional experiments for validation
-```
-
----
-
-## 🔮 Future Enhancements  
-- Integrate **Robyn (Meta MMM)** outputs for automated budget optimization insights  
-- Integrate **GeoLift (Meta causal inference)** for causal experiment reports  
-- Add **interactive dashboard (Streamlit)** for visualization  
+- **data**
+  - **type**: `file` or `sqlite`
+  - **path**: Path to the data file
+  - **table** / **query**: SQLite only (optional)
+- **dictionary** (optional)  
+  - Map column name → human definition; overrides inferred text in the data dictionary
+- **columns**
+  - **include** / **exclude**: Restrict or drop columns (optional)
+  - **auto_exclude_id_columns**: Default `true` — removes ID-like columns from stats, plots, correlations, and IQR outliers; they still appear in the dictionary with `in_analysis: no`
+  - **exclude_from_analysis**: Extra columns to drop from analysis only
+  - **target**: Dependent variable for supervised framing; **never auto-dropped** as an ID
+  - **datetime_columns**: Force selected columns to parse as datetimes (optional)
+- **report**
+  - **corr_threshold**: High-correlation flag threshold (Pearson |r|)
+  - **high_missing_pct_threshold**: High-missing column warning threshold (%)
+  - **sample_rows**: Row cap for heavy plots (tables still use the full analysis frame)
+- **sections**
+  - Toggle analysis blocks (missing values, correlations, outliers, etc.)
+- **llm**
+  - **enabled**: `true` / `false`
+  - **api_key_env**: Defaults to `OPENAI_API_KEY`
 
 ---
 
-## 🤝 Contributing  
-Contributions via PRs or issues are welcome!  
+## Project layout (important files)
 
----
+```
+.
+├── eda.py                 # CLI entry (reads config YAML, generates report)
+├── streamlit_app.py       # Web UI (Streamlit: upload, customize, download)
+├── config.example.yaml    # Example configuration
+├── data_connector.py      # Unified loaders (CSV, Excel, JSON, SQLite, DB)
+└── eda_llm_assistant/     # Library (analysis, plots, reporting, LLM)
+```
 
-## 📜 License  
-MIT License  
+## License
+
+See `LICENSE`.

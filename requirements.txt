@@ -1,6 +1,10 @@
 # Core Python libraries
 pandas>=2.0.0
 numpy>=1.24.0
+openpyxl>=3.1.0
+
+# Config
+pyyaml>=6.0.0
 
 # Automated EDA
 ydata-profiling>=4.6.0
@@ -12,6 +16,9 @@ seaborn>=0.12.0
 
 # LLM API
 openai>=1.0.0
+
+# Report rendering
+markdown>=3.6
 
 # Web app / interactive UI
 streamlit>=1.26.0
