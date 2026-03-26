@@ -6,6 +6,14 @@ from typing import Any
 from eda_llm_assistant.config import LLMConfig
 
 
+def _normalize_gemini_model_id(model: str) -> str:
+    """Strip accidental prefixes/suffixes from AI Studio copy-paste."""
+    m = (model or "").strip().strip('"').strip("'")
+    if m.startswith("models/"):
+        m = m[len("models/"):]
+    return m
+
+
 def llm_summarize(cfg: LLMConfig, eda_payload: dict[str, Any]) -> str | None:
     if not cfg.enabled:
         return None
@@ -49,6 +57,7 @@ def llm_summarize(cfg: LLMConfig, eda_payload: dict[str, Any]) -> str | None:
         # Gemini (Google AI Studio / Gemini API)
         # Uses the Generative Language API endpoint:
         # https://ai.google.dev/gemini-api/docs
+        from urllib.error import HTTPError
         from urllib.parse import urlencode
         from urllib.request import Request, urlopen
 
@@ -63,7 +72,11 @@ def llm_summarize(cfg: LLMConfig, eda_payload: dict[str, Any]) -> str | None:
             f"{eda_payload}"
         )
 
-        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{cfg.model}:generateContent"
+        model_id = _normalize_gemini_model_id(cfg.model)
+        if not model_id:
+            return "Gemini call failed: empty model id (set `llm.model` to a model id from AI Studio, e.g. `gemini-2.5-pro`)."
+
+        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent"
         url = f"{endpoint}?{urlencode({'key': api_key})}"
 
         payload = {
@@ -83,6 +96,18 @@ def llm_summarize(cfg: LLMConfig, eda_payload: dict[str, Any]) -> str | None:
         try:
             with urlopen(req, timeout=90) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
+        except HTTPError as e:
+            try:
+                err_body = e.read().decode("utf-8", errors="replace")
+            except Exception:
+                err_body = ""
+            hint = (
+                " If this is HTTP 404, your `llm.model` is wrong or no longer available for this API key—"
+                "open AI Studio → Get code / model dropdown and copy the **exact model id**, "
+                "or list models: "
+                "`curl 'https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_KEY'`."
+            )
+            return f"Gemini call failed: {e}. Response: {err_body or '(empty)'}{hint}"
         except Exception as e:
             return f"Gemini call failed: {e}"
 

@@ -58,8 +58,8 @@ llm:
   api_key_env: OPENAI_API_KEY
   system_prompt: "You are a senior data analyst. Given EDA results, write concise, actionable insights."
   user_prompt: "Summarize key findings, data quality issues, and recommendations."
-  # Example Gemini config:
+  # Example Gemini config (use the exact model id from Google AI Studio; older ids may 404):
   # provider: gemini
-  # model: gemini-1.5-pro
+  # model: gemini-2.5-pro
   # api_key_env: GEMINI_API_KEY
 

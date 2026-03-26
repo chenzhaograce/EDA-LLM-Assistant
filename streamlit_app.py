@@ -263,7 +263,7 @@ def main() -> None:
     st.subheader("3. Optional: AI summary (LLM)")
     use_llm = st.checkbox("Add an LLM-written summary section (needs API key)", value=False)
     llm_provider = st.selectbox("LLM provider", options=["openai", "gemini"], index=0, disabled=not use_llm)
-    default_model = "gpt-4o-mini" if llm_provider == "openai" else "gemini-1.5-pro"
+    default_model = "gpt-4o-mini" if llm_provider == "openai" else "gemini-2.5-pro"
     llm_model = st.text_input("Model", value=default_model, disabled=not use_llm)
     llm_key = st.text_input(
         "API key",
