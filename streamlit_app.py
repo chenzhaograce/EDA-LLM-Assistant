@@ -35,6 +35,9 @@ from eda_llm_assistant.config import (
 )
 from eda_llm_assistant.pipeline import run_pipeline
 
+# Multipage helper path (must match a file under `pages/`, run `streamlit run streamlit_app.py` from repo root).
+_REPORT_VIEWER_PAGE = "pages/2_Report_viewer.py"
+
 
 def _parse_dictionary(text: str) -> dict[str, str]:
     text = (text or "").strip()
@@ -99,6 +102,17 @@ def main() -> None:
         )
         st.divider()
         st.markdown("[Documentation](README.md) · Uses your machine only (no cloud upload).")
+        st.divider()
+        st.subheader("Navigation")
+        # Explicit links so users always see Report viewer (sidebar auto-list can be easy to miss).
+        st.page_link("streamlit_app.py", label="EDA Report Studio", icon="📊")
+        st.page_link(_REPORT_VIEWER_PAGE, label="Report viewer", icon="📄")
+        if st.session_state.get("last_out_root") and st.button(
+            "Open Report viewer now",
+            use_container_width=True,
+            key="nav_open_report_viewer_sidebar",
+        ):
+            st.switch_page(_REPORT_VIEWER_PAGE)
 
     # --- Upload ---
     st.subheader("1. Your data")
@@ -339,7 +353,7 @@ def main() -> None:
         st.session_state["last_out_root"] = str(out_root)
         st.session_state["last_result"] = result
         st.success("Report ready.")
-        st.info("在左侧边栏打开 **Report viewer** 页面，可全屏内嵌预览 HTML 报告并下载。")
+        st.info("Open **Report viewer** from the sidebar (or **Open Report viewer now**) to preview the HTML report and download files.")
 
     out_root_s = st.session_state.get("last_out_root")
     result = st.session_state.get("last_result")
@@ -389,7 +403,13 @@ def main() -> None:
                 "After you download `eda_report.html`, open it from the same folder as the `assets` folder "
                 "(use the **ZIP** download to keep everything together), or open the HTML from inside the unzipped folder."
             )
-            st.caption("全页预览：**侧边栏 → Report viewer**。")
+            st.caption("Full-page preview: sidebar → **Report viewer**.")
+            if st.button(
+                "Open Report viewer (full page)",
+                use_container_width=True,
+                key="open_report_viewer_main",
+            ):
+                st.switch_page(_REPORT_VIEWER_PAGE)
 
 
 if __name__ == "__main__":

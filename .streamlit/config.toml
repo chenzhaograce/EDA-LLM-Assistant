@@ -1,0 +1,4 @@
+# Keep multipage navigation visible in the sidebar (Streamlit >= 1.33).
+# If this were false, auto-discovered pages might not appear in the sidebar UI.
+[client]
+showSidebarNavigation = true

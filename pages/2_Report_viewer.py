@@ -1,8 +1,7 @@
 """
-Full-page HTML report preview + downloads.
+Full-page HTML report preview and downloads.
 
-Streamlit discovers this file automatically under `pages/`.
-From the sidebar, open “Report viewer” after generating a report on the home page.
+Appears in the sidebar when you run `streamlit run streamlit_app.py` from the repository root.
 """
 
 from __future__ import annotations
@@ -16,7 +15,7 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
-_ROOT = Path(__file__).resolve().parent.parent
+_MAIN_PAGE = "streamlit_app.py"
 
 
 def _mime_for_image(path: Path) -> str:
@@ -35,7 +34,7 @@ def _mime_for_image(path: Path) -> str:
 
 
 def _inline_img_srcs(html: str, report_dir: Path) -> str:
-    """Replace relative image paths with data URLs so previews work inside Streamlit's iframe."""
+    """Turn relative image paths into data URLs so charts render inside Streamlit's iframe."""
 
     def replace_one(m: re.Match[str]) -> str:
         quote = m.group(1)
@@ -60,12 +59,19 @@ def _inline_img_srcs(html: str, report_dir: Path) -> str:
 
 
 st.set_page_config(page_title="Report viewer", page_icon="📄", layout="wide")
+if st.button("← Back to EDA Report Studio", key="report_viewer_back"):
+    st.switch_page(_MAIN_PAGE)
+
 st.title("Report viewer")
-st.caption("内嵌预览最近一次生成的 HTML 报告（图表已内嵌为 data URL，便于在页面里显示）。")
+st.caption(
+    "Embedded preview of the latest HTML report. Images are inlined as data URLs so plots display inside this page."
+)
 
 out_root_s = st.session_state.get("last_out_root")
 if not out_root_s:
-    st.warning("请先在 **EDA Report Studio** 首页上传数据并点击 **Generate report**。")
+    st.warning(
+        "No report in this session yet. Go to **EDA Report Studio**, upload data, and click **Generate report**."
+    )
     st.stop()
 
 root = Path(out_root_s)
@@ -74,20 +80,20 @@ html_p = out_path / "report.html"
 md_p = out_path / "report.md"
 
 if not html_p.is_file():
-    st.error("找不到 `outputs/report.html`。请返回首页重新生成报告。")
+    st.error("`outputs/report.html` was not found. Return to the studio and generate the report again.")
     st.stop()
 
 html_raw = html_p.read_text(encoding="utf-8")
 html_preview = _inline_img_srcs(html_raw, html_p.parent)
 
-st.subheader("预览")
+st.subheader("Preview")
 components.html(html_preview, height=1100, scrolling=True)
 
-st.subheader("下载")
+st.subheader("Download")
 c1, c2, c3 = st.columns(3)
 with c1:
     st.download_button(
-        "下载 HTML",
+        "Download HTML",
         data=html_p.read_bytes(),
         file_name="eda_report.html",
         mime="text/html",
@@ -96,14 +102,14 @@ with c1:
 with c2:
     if md_p.is_file():
         st.download_button(
-            "下载 Markdown",
+            "Download Markdown",
             data=md_p.read_bytes(),
             file_name="eda_report.md",
             mime="text/markdown",
             use_container_width=True,
         )
     else:
-        st.caption("未生成 Markdown（可在配置里开启保存）。")
+        st.caption("Markdown was not generated (enable saving Markdown in `ReportConfig`).")
 with c3:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -112,7 +118,7 @@ with c3:
                 zf.write(f, arcname=f.relative_to(out_path))
     buf.seek(0)
     st.download_button(
-        "下载 ZIP（HTML + 图表等）",
+        "Download ZIP (HTML + assets)",
         data=buf.getvalue(),
         file_name="eda_outputs.zip",
         mime="application/zip",
@@ -120,5 +126,5 @@ with c3:
     )
 
 st.info(
-    "单独下载的 HTML 依赖同目录下的 `assets/` 图片；若只发一个文件给别人，**ZIP** 最稳妥。"
+    "A standalone HTML file expects an `assets/` folder next to it. To share one download, use the **ZIP**."
 )
