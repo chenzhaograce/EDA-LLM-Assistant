@@ -73,7 +73,7 @@ Your browser opens **EDA Report Studio**: upload a file, adjust options, then do
 
 ## Project layout (important files)
 
-```
+```text
 .
 ├── eda.py                 # CLI entry (reads config YAML, generates report)
 ├── streamlit_app.py       # Web UI (Streamlit: upload, customize, download)
