@@ -639,6 +639,11 @@ with explicit notes on <strong>which methods</strong> are used and <strong>how</
 <blockquote>
 <p><strong>Other considerations.</strong> • <strong>Sampling:</strong> if <code>report.sample_rows</code> is set, plots use a random sample for speed; tables and validation use the full dataframe unless noted. • <strong>Correlation:</strong> Pearson assumes roughly linear relationships; for skewed or ordinal data consider Spearman or dedicated tests. • <strong>Causality:</strong> association in EDA does not imply cause. • <strong>Privacy:</strong> reports may contain sample rows; scrub sensitive columns before sharing.</p>
 </blockquote>
+<h3>LLM-generated narrative (optional)</h3>
+<blockquote>
+<p>Generated from a compact JSON summary of EDA tables, not from raw row-level data.</p>
+</blockquote>
+<p>LLM summary enabled, but env var <code>OPENAI_API_KEY</code> is not set. Skipping LLM summary.</p>
 <h2>9. Output provenance</h2>
 <table>
 <thead>
@@ -650,7 +655,7 @@ with explicit notes on <strong>which methods</strong> are used and <strong>how</
 <tbody>
 <tr>
 <td>generated_at_utc</td>
-<td>2026-03-26 16:11:37 UTC</td>
+<td>2026-03-26 16:35:38 UTC</td>
 </tr>
 <tr>
 <td>python</td>

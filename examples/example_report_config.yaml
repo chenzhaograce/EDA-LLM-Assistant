@@ -25,4 +25,7 @@ report:
   supervised_max_category_levels: 25
 
 llm:
-  enabled: false
+  enabled: true
+  provider: openai
+  model: gpt-4o-mini
+  api_key_env: OPENAI_API_KEY

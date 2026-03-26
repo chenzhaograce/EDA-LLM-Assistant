@@ -249,11 +249,17 @@ No pairs with |r| ≥ threshold (edit `report.corr_threshold`; current logic use
 
 > **Other considerations.** • **Sampling:** if `report.sample_rows` is set, plots use a random sample for speed; tables and validation use the full dataframe unless noted. • **Correlation:** Pearson assumes roughly linear relationships; for skewed or ordinal data consider Spearman or dedicated tests. • **Causality:** association in EDA does not imply cause. • **Privacy:** reports may contain sample rows; scrub sensitive columns before sharing.
 
+### LLM-generated narrative (optional)
+
+> Generated from a compact JSON summary of EDA tables, not from raw row-level data.
+
+LLM summary enabled, but env var `OPENAI_API_KEY` is not set. Skipping LLM summary.
+
 ## 9. Output provenance
 
 | Key | Value |
 |---|---|
-| generated_at_utc | 2026-03-26 16:11:37 UTC |
+| generated_at_utc | 2026-03-26 16:35:38 UTC |
 | python | 3.11.5 |
 | pandas | 2.1.1 |
 | numpy | 1.24.3 |

@@ -388,6 +388,7 @@ def main() -> None:
                     pdf_bytes = markdown_to_pdf_bytes(
                         md_p.read_text(encoding="utf-8"),
                         title="EDA Report",
+                        base_dir=md_p.parent,
                     )
                     st.download_button(
                         "Download PDF",
