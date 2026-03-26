@@ -190,10 +190,36 @@ def main() -> None:
         sec_cat = st.checkbox("Categorical summaries & plots", value=True)
         sec_corr = st.checkbox("Correlations", value=True)
         sec_out = st.checkbox("Outliers (IQR)", value=True)
+
+    # Optional EDA engines (may be missing in deployment environments).
+    try:
+        import ydata_profiling as _ydata_profiling  # noqa: F401
+
+        ydata_ok = True
+    except Exception:
+        ydata_ok = False
+
+    try:
+        import sweetviz as _sweetviz  # noqa: F401
+
+        sweetviz_ok = True
+    except Exception:
+        sweetviz_ok = False
+
     with sc3:
         sec_ts = st.checkbox("Time series (if date columns exist)", value=False)
-        sec_ydata = st.checkbox("Extra: ydata-profiling HTML (slow)", value=False)
-        sec_sv = st.checkbox("Extra: Sweetviz HTML (slow)", value=False)
+        sec_ydata = st.checkbox(
+            "Extra: ydata-profiling HTML (slow)",
+            value=False,
+            disabled=not ydata_ok,
+            help="Disabled because `ydata-profiling` is not installed in this environment.",
+        )
+        sec_sv = st.checkbox(
+            "Extra: Sweetviz HTML (slow)",
+            value=False,
+            disabled=not sweetviz_ok,
+            help="Disabled because `sweetviz` is not installed in this environment.",
+        )
 
     sc4_1, sc4_2 = st.columns(2)
     with sc4_1:
