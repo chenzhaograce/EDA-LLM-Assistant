@@ -7,8 +7,12 @@ openpyxl>=3.1.0
 pyyaml>=6.0.0
 
 # Automated EDA
-ydata-profiling>=4.6.0
-sweetviz>=2.2.1
+# Optional "extra profiling" engines.
+# These packages often lag behind new Python releases and can fail to install on
+# some deployment environments. The app only imports them when the user enables
+# the corresponding Streamlit checkboxes.
+# Install manually if you want those reports:
+#   pip install ydata-profiling sweetviz
 
 # Data visualization
 matplotlib>=3.7.0
@@ -23,6 +27,8 @@ markdown>=3.6
 # Web app / interactive UI
 streamlit>=1.26.0
 
-# Jupyter support
-jupyterlab>=4.0.0
-ipykernel>=6.0.0
+# Jupyter support (optional / dev-only).
+# The Streamlit app does not require these packages, and they may not have
+# wheels for the deployment environment's Python version.
+# Install manually if you want notebook development:
+#   pip install jupyterlab ipykernel
