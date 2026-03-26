@@ -339,6 +339,7 @@ def main() -> None:
         st.session_state["last_out_root"] = str(out_root)
         st.session_state["last_result"] = result
         st.success("Report ready.")
+        st.info("在左侧边栏打开 **Report viewer** 页面，可全屏内嵌预览 HTML 报告并下载。")
 
     out_root_s = st.session_state.get("last_out_root")
     result = st.session_state.get("last_result")
@@ -388,6 +389,7 @@ def main() -> None:
                 "After you download `eda_report.html`, open it from the same folder as the `assets` folder "
                 "(use the **ZIP** download to keep everything together), or open the HTML from inside the unzipped folder."
             )
+            st.caption("全页预览：**侧边栏 → Report viewer**。")
 
 
 if __name__ == "__main__":
