@@ -52,9 +52,14 @@ report:
 
 llm:
   enabled: false
+  # provider: openai or gemini (Google AI Studio / Gemini API)
   provider: openai
   model: gpt-4o-mini
   api_key_env: OPENAI_API_KEY
   system_prompt: "You are a senior data analyst. Given EDA results, write concise, actionable insights."
   user_prompt: "Summarize key findings, data quality issues, and recommendations."
+  # Example Gemini config:
+  # provider: gemini
+  # model: gemini-1.5-pro
+  # api_key_env: GEMINI_API_KEY
 

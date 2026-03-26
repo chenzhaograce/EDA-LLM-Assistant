@@ -72,7 +72,7 @@ class ReportConfig:
 @dataclass
 class LLMConfig:
     enabled: bool = False
-    provider: Literal["openai"] = "openai"
+    provider: Literal["openai", "gemini"] = "openai"
     model: str = "gpt-4o-mini"
     api_key_env: str = "OPENAI_API_KEY"
 

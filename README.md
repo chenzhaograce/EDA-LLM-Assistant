@@ -1,6 +1,6 @@
 # EDA LLM Assistant
 
-Configurable one-shot exploratory data analysis for **tabular data** (CSV, Excel, JSON, Parquet, SQLite). Runs analyses and charts from your settings and exports **Markdown** and **HTML** reports. Optional **LLM** narrative section (OpenAI).
+Configurable one-shot exploratory data analysis for **tabular data** (CSV, Excel, JSON, Parquet, SQLite). Runs analyses and charts from your settings and exports **Markdown** and **HTML** reports. Optional **LLM** narrative section (OpenAI or Gemini).
 
 ---
 
@@ -67,6 +67,7 @@ Your browser opens **EDA Report Studio**: upload a file, adjust options, then do
   - Toggle analysis blocks (missing values, correlations, outliers, etc.)
 - **llm**
   - **enabled**: `true` / `false`
+  - **provider**: `openai` or `gemini`
   - **api_key_env**: Defaults to `OPENAI_API_KEY`
 
 ---

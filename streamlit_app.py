@@ -260,9 +260,17 @@ def main() -> None:
         placeholder="One per line: ColumnName: Human readable meaning\nOr paste a small YAML mapping.",
     )
 
-    st.subheader("3. Optional: AI summary (OpenAI)")
+    st.subheader("3. Optional: AI summary (LLM)")
     use_llm = st.checkbox("Add an LLM-written summary section (needs API key)", value=False)
-    llm_key = st.text_input("OpenAI API key", type="password", help="Used only for this session in your browser; not stored on disk.")
+    llm_provider = st.selectbox("LLM provider", options=["openai", "gemini"], index=0, disabled=not use_llm)
+    default_model = "gpt-4o-mini" if llm_provider == "openai" else "gemini-1.5-pro"
+    llm_model = st.text_input("Model", value=default_model, disabled=not use_llm)
+    llm_key = st.text_input(
+        "API key",
+        type="password",
+        disabled=not use_llm,
+        help="Used only for this session in your browser; not stored on disk.",
+    )
 
     st.subheader("4. Generate & download")
     if st.button("Generate report", type="primary", use_container_width=True):
@@ -302,11 +310,14 @@ def main() -> None:
             table=table_choice if is_sqlite else None,
             query=None,
         )
-        llm_cfg = LLMConfig(enabled=use_llm)
+        llm_cfg = LLMConfig(enabled=use_llm, provider=llm_provider, model=llm_model)
         if use_llm and llm_key.strip():
             import os
 
-            os.environ["OPENAI_API_KEY"] = llm_key.strip()
+            # Map provider -> env var expected by LLMConfig.
+            api_env = "OPENAI_API_KEY" if llm_provider == "openai" else "GEMINI_API_KEY"
+            llm_cfg.api_key_env = api_env
+            os.environ[api_env] = llm_key.strip()
 
         cfg = AppConfig(
             data=data_cfg,

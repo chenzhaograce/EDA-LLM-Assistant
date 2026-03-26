@@ -17,36 +17,84 @@ def llm_summarize(cfg: LLMConfig, eda_payload: dict[str, Any]) -> str | None:
             "Skipping LLM summary."
         )
 
-    if cfg.provider != "openai":
+    if cfg.provider not in ("openai", "gemini"):
         return f"Unsupported LLM provider: {cfg.provider}"
 
     try:
-        from openai import OpenAI
-    except Exception as e:
-        return f"OpenAI client import failed: {e}"
+        if cfg.provider == "openai":
+            from openai import OpenAI
 
-    client = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
-    # Keep prompt compact; we pass structured EDA results only (no raw data)
-    messages = [
-        {"role": "system", "content": cfg.system_prompt},
-        {
-            "role": "user",
-            "content": (
-                f"{cfg.user_prompt}\n\n"
-                "EDA JSON:\n"
-                f"{eda_payload}"
-            ),
-        },
-    ]
+            # Keep prompt compact; we pass structured EDA results only (no raw data)
+            messages = [
+                {"role": "system", "content": cfg.system_prompt},
+                {
+                    "role": "user",
+                    "content": (
+                        f"{cfg.user_prompt}\n\n"
+                        "EDA JSON:\n"
+                        f"{eda_payload}"
+                    ),
+                },
+            ]
 
-    try:
-        resp = client.chat.completions.create(
-            model=cfg.model,
-            messages=messages,
-            temperature=0.2,
+            resp = client.chat.completions.create(
+                model=cfg.model,
+                messages=messages,
+                temperature=0.2,
+            )
+            return resp.choices[0].message.content or ""
+
+        # Gemini (Google AI Studio / Gemini API)
+        # Uses the Generative Language API endpoint:
+        # https://ai.google.dev/gemini-api/docs
+        from urllib.parse import urlencode
+        from urllib.request import Request, urlopen
+
+        import json
+
+        # Gemini's `generateContent` takes a single prompt in `contents[].parts[].text`.
+        # We fold system_prompt into the user prompt to keep the payload simple.
+        prompt = (
+            f"{cfg.system_prompt}\n\n"
+            f"{cfg.user_prompt}\n\n"
+            "EDA JSON:\n"
+            f"{eda_payload}"
         )
-        return resp.choices[0].message.content or ""
+
+        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{cfg.model}:generateContent"
+        url = f"{endpoint}?{urlencode({'key': api_key})}"
+
+        payload = {
+            "contents": [
+                {"role": "user", "parts": [{"text": prompt}]},
+            ],
+            "generationConfig": {"temperature": 0.2},
+        }
+
+        req = Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+
+        try:
+            with urlopen(req, timeout=90) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            return f"Gemini call failed: {e}"
+
+        # Expected shape:
+        # { "candidates": [ { "content": { "parts": [ { "text": "..." } ] } } ] }
+        candidates = data.get("candidates") or []
+        if not candidates:
+            return f"Gemini call failed: {data}"
+
+        parts = (candidates[0].get("content") or {}).get("parts") or []
+        texts = [p.get("text") for p in parts if isinstance(p, dict) and p.get("text")]
+        return ("".join(texts) or "").strip() or f"Gemini call returned no text: {data}"
     except Exception as e:
         return f"LLM call failed: {e}"
 
