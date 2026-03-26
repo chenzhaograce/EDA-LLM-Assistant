@@ -33,6 +33,7 @@ from eda_llm_assistant.config import (
     LLMConfig,
     ReportConfig,
 )
+from eda_llm_assistant.pdf_export import markdown_to_pdf_bytes
 from eda_llm_assistant.pipeline import run_pipeline
 
 # Multipage helper path (must match a file under `pages/`, run `streamlit run streamlit_app.py` from repo root).
@@ -363,7 +364,7 @@ def main() -> None:
         html_p = out_path / "report.html"
         md_p = out_path / "report.md"
 
-        dcol1, dcol2, dcol3 = st.columns(3)
+        dcol1, dcol2, dcol3, dcol4 = st.columns(4)
         if html_p.is_file():
             with dcol1:
                 st.download_button(
@@ -382,13 +383,28 @@ def main() -> None:
                     mime="text/markdown",
                     use_container_width=True,
                 )
+            with dcol3:
+                try:
+                    pdf_bytes = markdown_to_pdf_bytes(
+                        md_p.read_text(encoding="utf-8"),
+                        title="EDA Report",
+                    )
+                    st.download_button(
+                        "Download PDF",
+                        data=pdf_bytes,
+                        file_name="eda_report.pdf",
+                        mime="application/pdf",
+                        use_container_width=True,
+                    )
+                except Exception as e:
+                    st.caption(f"PDF export unavailable: {e}")
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
             for f in out_path.rglob("*"):
                 if f.is_file():
                     zf.write(f, arcname=f.relative_to(out_path))
         buf.seek(0)
-        with dcol3:
+        with dcol4:
             st.download_button(
                 "Download ZIP (all outputs)",
                 data=buf.getvalue(),

@@ -14,6 +14,7 @@ from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
+from eda_llm_assistant.pdf_export import markdown_to_pdf_bytes
 
 _MAIN_PAGE = "streamlit_app.py"
 
@@ -107,7 +108,7 @@ st.subheader("Preview")
 components.html(html_preview, height=1100, scrolling=True)
 
 st.subheader("Download")
-c1, c2, c3 = st.columns(3)
+c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.download_button(
         "Download HTML",
@@ -128,6 +129,19 @@ with c2:
     else:
         st.caption("Markdown was not generated (enable saving Markdown in `ReportConfig`).")
 with c3:
+    if md_p.is_file():
+        try:
+            pdf_bytes = markdown_to_pdf_bytes(md_p.read_text(encoding="utf-8"), title="EDA Report")
+            st.download_button(
+                "Download PDF",
+                data=pdf_bytes,
+                file_name="eda_report.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+            )
+        except Exception as e:
+            st.caption(f"PDF export unavailable: {e}")
+with c4:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in out_path.rglob("*"):

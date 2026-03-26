@@ -1,0 +1,28 @@
+# Minimal config to regenerate the committed sample under examples/sample_report/
+# Run from repo root:
+#   python eda.py --config examples/example_report_config.yaml
+
+data:
+  type: file
+  path: sales_and_customers.csv
+  pandas_kwargs: {}
+
+columns:
+  target: Customer_Satisfaction
+  auto_exclude_id_columns: true
+
+sections:
+  time_series: false
+  ydata_profiling_html: false
+  sweetviz_html: false
+
+report:
+  title: "Example EDA Report — sales_and_customers"
+  output_dir: "examples/sample_report"
+  save_markdown: true
+  save_html: true
+  sample_rows: 5000
+  supervised_max_category_levels: 25
+
+llm:
+  enabled: false

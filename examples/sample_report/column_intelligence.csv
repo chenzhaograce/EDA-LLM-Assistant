@@ -1,0 +1,8 @@
+column,in_analysis,semantic_guess,semantic_note,pii_risk_flags,pii_scan_note,n_unique,cardinality_ratio
+CustomerID,no,surrogate_or_manual_excluded,Column excluded from analysis (often an ID).,none,,200,1.0
+Age,yes,continuous_or_count_numeric,Generic numeric; inspect domain.,none,,55,0.275
+Income,yes,monetary_like,Name suggests money; verify currency/units.,none,,199,0.995
+Annual_Spend,yes,monetary_like,Name suggests money; verify currency/units.,none,,200,1.0
+Number_of_Visits,yes,count_like_integer,Integer with count-like name.,none,,29,0.145
+Preferred_Channel,yes,nominal_or_low_cardinality_categorical,Typical categorical / string labels.,none,,3,0.015
+Customer_Satisfaction,yes,nominal_or_low_cardinality_categorical,Typical categorical / string labels.,none,,3,0.015

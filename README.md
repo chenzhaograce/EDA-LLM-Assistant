@@ -35,6 +35,7 @@ streamlit run streamlit_app.py
 ```
 
 Your browser opens **EDA Report Studio**: upload a file, adjust options, then download HTML, Markdown, or a full ZIP of outputs.
+The app also supports **PDF export** (rendered from the generated Markdown).
 
 ### Default output folder (`outputs/`)
 
@@ -79,6 +80,7 @@ Your browser opens **EDA Report Studio**: upload a file, adjust options, then do
 ├── eda.py                 # CLI entry (reads config YAML, generates report)
 ├── streamlit_app.py       # Web UI (Streamlit: upload, customize, download)
 ├── config.example.yaml    # Example configuration
+├── examples/              # Committed sample outputs (HTML/MD/PDF + assets)
 ├── data_connector.py      # Unified loaders (CSV, Excel, JSON, SQLite, DB)
 └── eda_llm_assistant/     # Library (analysis, plots, reporting, LLM)
 ```

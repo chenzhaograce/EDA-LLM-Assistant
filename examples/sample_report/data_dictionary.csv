@@ -1,0 +1,8 @@
+column,dtype,n_unique,missing_pct,in_analysis,meaning,role_in_eda
+CustomerID,int64,200,0.0,no,Inferred: likely Identifier (surrogate or business key) (from column name pattern).,excluded from analysis (identifier / manual)
+Age,int64,55,0.0,yes,Inferred: likely Age or aging-related measure (from column name pattern).,numeric (candidate independent)
+Income,int64,199,0.0,yes,Inferred: likely Monetary amount or income (from column name pattern).,numeric (candidate independent)
+Annual_Spend,float64,200,0.0,yes,Inferred: likely Monetary amount or income (from column name pattern).,numeric (candidate independent)
+Number_of_Visits,int64,29,0.0,yes,Inferred: likely Count or numeric quantity (from column name pattern).,numeric (candidate independent)
+Preferred_Channel,object,3,0.0,yes,Inferred: likely Channel or source category (from column name pattern).,categorical (candidate independent)
+Customer_Satisfaction,object,3,0.0,yes,Inferred: likely Score or satisfaction level (from column name pattern).,dependent (target)
