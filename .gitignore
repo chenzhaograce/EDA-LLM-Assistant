@@ -20,3 +20,25 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+# --- Python / this project ---
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter (optional local experiments)
+*.ipynb
+.ipynb_checkpoints/
+
+# Generated EDA reports (recreated by eda.py / Streamlit)
+outputs/
+
+# Local config (may contain paths or secrets); use config.example.yaml in repo
+config.yaml
+config.yml
