@@ -17,6 +17,23 @@ import streamlit.components.v1 as components
 
 _MAIN_PAGE = "streamlit_app.py"
 
+_LIGHT_SURFACE_INJECTION = """<style id="eda-llm-forced-light">
+  html, body { background: #ffffff !important; color: #1a1a1a !important; }
+  table td { background: #ffffff !important; color: #1a1a1a !important; }
+  table th { background: #f0f3f6 !important; color: #1a1a1a !important; }
+  h1, h2, h3, h4, p, li { color: #1a1a1a !important; }
+</style>"""
+
+
+def _inject_light_surface(html: str) -> str:
+    """Force light background/text for embedded preview (works for older report.html too)."""
+    if not html.strip():
+        return html
+    low = html.lower()
+    if "<head" in low:
+        return re.sub(r"(<head[^>]*>)", r"\1" + _LIGHT_SURFACE_INJECTION, html, count=1, flags=re.I)
+    return _LIGHT_SURFACE_INJECTION + html
+
 
 def _mime_for_image(path: Path) -> str:
     ext = path.suffix.lower()
@@ -84,7 +101,7 @@ if not html_p.is_file():
     st.stop()
 
 html_raw = html_p.read_text(encoding="utf-8")
-html_preview = _inline_img_srcs(html_raw, html_p.parent)
+html_preview = _inline_img_srcs(_inject_light_surface(html_raw), html_p.parent)
 
 st.subheader("Preview")
 components.html(html_preview, height=1100, scrolling=True)

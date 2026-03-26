@@ -2,3 +2,7 @@
 # If this were false, auto-discovered pages might not appear in the sidebar UI.
 [client]
 showSidebarNavigation = true
+
+# Always use a light shell so embedded HTML reports (designed for light theme) stay readable.
+[theme]
+base = "light"

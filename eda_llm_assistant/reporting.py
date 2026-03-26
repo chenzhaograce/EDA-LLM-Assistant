@@ -475,17 +475,24 @@ def markdown_to_html(md: str, title: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title}</title>
   <style>
+    html, body {{
+      background: #ffffff !important;
+      color: #1a1a1a !important;
+    }}
     body {{ font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.55; margin: 24px; max-width: 1100px; }}
     table {{ border-collapse: collapse; width: 100%; overflow-x: auto; display: block; }}
     th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-    th {{ background: #f6f8fa; }}
+    th {{ background: #f0f3f6; color: #1a1a1a; }}
+    td {{ background: #ffffff; color: #1a1a1a; }}
+    tr:nth-child(even) td {{ background: #f9f9f9; }}
     blockquote {{ margin: 12px 0; padding: 10px 16px; background: #f6f8fa; border-left: 4px solid #0366d6;
                   color: #24292e; font-size: 0.95rem; }}
-    code {{ background: #f6f8fa; padding: 0 4px; border-radius: 4px; }}
+    code {{ background: #f6f8fa; color: #1a1a1a; padding: 0 4px; border-radius: 4px; }}
     pre code {{ display: block; padding: 12px; overflow-x: auto; }}
     img {{ max-width: 100%; height: auto; border: 1px solid #eee; border-radius: 8px; }}
-    h1, h2, h3, h4 {{ margin-top: 28px; }}
+    h1, h2, h3, h4 {{ margin-top: 28px; color: #1a1a1a; }}
+    p, li {{ color: #1a1a1a; }}
   </style>
 </head>
 <body>
