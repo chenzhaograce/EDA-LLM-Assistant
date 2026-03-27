@@ -14,7 +14,7 @@ def markdown_to_pdf_bytes(
 ) -> bytes:
     """Render markdown-like text to a simple PDF.
 
-    Keeps formatting intentionally lightweight for portability in Streamlit Cloud.
+    Tables are rendered using fpdf2's native table layout (not monospace text).
     """
     try:
         from fpdf import FPDF
@@ -24,9 +24,7 @@ def markdown_to_pdf_bytes(
         ) from e
 
     def _safe(s: str) -> str:
-        # Built-in Helvetica supports latin-1. Replace unsupported glyphs.
         s = (s or "")
-        # Normalize common unicode punctuation to ASCII for cleaner PDF rendering.
         s = (
             s.replace("—", "-")
             .replace("–", "-")
@@ -44,14 +42,40 @@ def markdown_to_pdf_bytes(
         s = re.sub(r"\*([^*]+)\*", r"\1", s)
         return s
 
+    def _is_separator_row(cells: list[str]) -> bool:
+        if not cells:
+            return False
+        for c in cells:
+            t = (c or "").strip().replace(" ", "")
+            if not re.fullmatch(r":?-{3,}:?", t):
+                return False
+        return True
+
+    def _parse_md_table_block(block: list[str]) -> list[list[str]]:
+        rows: list[list[str]] = []
+        for raw in block:
+            inner = raw.strip()
+            if not inner.startswith("|"):
+                continue
+            cells = [c.strip() for c in inner.strip("|").split("|")]
+            if _is_separator_row(cells):
+                continue
+            rows.append([_safe(_clean_inline_markdown(c)) for c in cells])
+        if not rows:
+            return []
+        n = max(len(r) for r in rows)
+        return [r + [""] * (n - len(r)) for r in rows]
+
     pdf = FPDF(format="A4", unit="mm")
     pdf.set_auto_page_break(auto=True, margin=12)
     pdf.add_page()
 
+    def _usable_width() -> float:
+        return pdf.w - pdf.l_margin - pdf.r_margin
+
     def _write(text: str, h: float, width: int = 110) -> None:
         safe = _safe(text)
-        # Pre-wrap to avoid fpdf long-token edge cases on very wide lines.
-        for seg in (wrap(safe, width=width, break_long_words=True, break_on_hyphens=False) or [""]):
+        for seg in wrap(safe, width=width, break_long_words=True, break_on_hyphens=False) or [""]:
             pdf.set_x(pdf.l_margin)
             pdf.multi_cell(0, h, seg)
 
@@ -60,15 +84,52 @@ def markdown_to_pdf_bytes(
     pdf.ln(1)
 
     base_path = Path(base_dir) if base_dir else None
+    lines_list = markdown_text.splitlines()
+    i = 0
 
-    for raw in markdown_text.splitlines():
-        line = raw.rstrip()
+    while i < len(lines_list):
+        line = lines_list[i].rstrip()
         if not line:
             pdf.ln(1.5)
+            i += 1
+            continue
+
+        stripped = line.strip()
+        # Markdown pipe table: consecutive lines starting with |
+        if stripped.startswith("|"):
+            block: list[str] = []
+            j = i
+            while j < len(lines_list):
+                s = lines_list[j].strip()
+                if not s:
+                    break
+                if not s.startswith("|"):
+                    break
+                block.append(lines_list[j])
+                j += 1
+            rows = _parse_md_table_block(block)
+            i = j
+            if rows:
+                pdf.set_font("Helvetica", "", 9)
+                with pdf.table(
+                    rows=rows,
+                    width=_usable_width(),
+                    line_height=6,
+                    text_align="LEFT",
+                    first_row_as_headings=True,
+                    repeat_headings=True,
+                    borders_layout="ALL",
+                    padding=2,
+                    wrapmode="WORD",
+                    gutter_height=0,
+                    gutter_width=0,
+                ):
+                    pass
+                pdf.ln(2)
             continue
 
         # Image syntax: ![alt](path)
-        m_img = re.match(r"!\[[^\]]*\]\(([^)]+)\)", line.strip())
+        m_img = re.match(r"!\[[^\]]*\]\(([^)]+)\)", stripped)
         if m_img and base_path:
             img_rel = m_img.group(1).split("?", 1)[0].split("#", 1)[0]
             img_path = (base_path / img_rel).resolve()
@@ -79,15 +140,13 @@ def markdown_to_pdf_bytes(
             if img_path and img_path.is_file():
                 try:
                     pdf.set_x(pdf.l_margin)
-                    usable_w = pdf.w - pdf.l_margin - pdf.r_margin
-                    pdf.image(str(img_path), w=usable_w)
+                    pdf.image(str(img_path), w=_usable_width())
                     pdf.ln(2)
+                    i += 1
                     continue
                 except Exception:
-                    # Fall back to text if image fails
                     pass
 
-        # Heading syntax: # ... up to ######
         m_head = re.match(r"^(#{1,6})\s+(.*)$", line)
         if m_head:
             level = len(m_head.group(1))
@@ -95,23 +154,22 @@ def markdown_to_pdf_bytes(
             size = {1: 14, 2: 13, 3: 12}.get(level, 11)
             pdf.set_font("Helvetica", "B", size)
             _write(txt, 7 if level <= 2 else 6.5)
+            i += 1
             continue
-        if line.startswith("|"):
-            # Keep tables as monospaced rows for readability in plain PDF.
-            pdf.set_font("Courier", "", 9)
-            _write(line, 4.5, width=130)
-            continue
-        if line.startswith("- ") or line.startswith("* "):
+        if stripped.startswith("- ") or stripped.startswith("* "):
             pdf.set_font("Helvetica", "", 10.5)
-            _write("- " + _clean_inline_markdown(line[2:].strip()), 5.5)
+            _write("- " + _clean_inline_markdown(stripped[2:].strip()), 5.5)
+            i += 1
             continue
-        if line.startswith(">"):
+        if stripped.startswith(">"):
             pdf.set_font("Helvetica", "I", 10)
-            _write(_clean_inline_markdown(line.lstrip("> ").strip()), 5.5)
+            _write(_clean_inline_markdown(stripped.lstrip("> ").strip()), 5.5)
+            i += 1
             continue
 
         pdf.set_font("Helvetica", "", 10.5)
         _write(_clean_inline_markdown(line), 5.5)
+        i += 1
 
     out = BytesIO()
     raw = pdf.output(dest="S")
@@ -120,4 +178,3 @@ def markdown_to_pdf_bytes(
     else:
         out.write(bytes(raw))
     return out.getvalue()
-
